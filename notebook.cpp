@@ -1,11 +1,14 @@
 #include "notebook.h"
 #include <QFontDialog>
+#include <QColorDialog>
 #include <QFont>
 #include <QHBoxLayout>
 #include <QDialog>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QMessageBox>
+#include <QValidator>
 
 notebook::notebook(QWidget *parent)
     : QMainWindow(parent)
@@ -19,7 +22,8 @@ notebook::~notebook()
 
 void notebook::createUI(){
 
-    setCentralWidget(new QTextEdit);//创建文本编辑区
+    textEdit = new QTextEdit;
+    setCentralWidget(textEdit);//创建文本编辑区
     QAction* action = nullptr;//初始化动作
     menuBar = new QMenuBar;//创建菜单栏
 
@@ -111,7 +115,9 @@ void notebook::createAction(QAction*& action, QWidget* parent, QString instance,
 }
 
 void notebook::highLight(){//查找高亮
-
+    QPalette palette = textEdit->palette();
+    palette.setColor(QPalette::Highlight,palette.color(QPalette::Active,QPalette::Highlight));
+    textEdit->setPalette(palette);
 }
 
 void notebook::NewFile(){
@@ -151,37 +157,130 @@ void notebook::Paste(){
 }
 
 void notebook::Find(){
+
     QHBoxLayout *layout = new QHBoxLayout;
     QDialog *findDialog = new QDialog(this);
     QLabel *label = new QLabel("Content");
-    findEdit = new QLineEdit;
-    QPushButton *button = new QPushButton("Find");
-    connect(button, &QPushButton::clicked, this, &notebook::highLight);
+    QLineEdit *findEdit = new QLineEdit;
+    QPushButton *buttonl = new QPushButton("Previous");
+    QPushButton *buttonn = new QPushButton("Next");
     layout->addWidget(label);
     layout->addWidget(findEdit);
-    layout->addWidget(button);
+    layout->addWidget(buttonl);
+    layout->addWidget(buttonn);
     findDialog->setLayout(layout);
+    findDialog->setWindowTitle("Find");
     findDialog->show();
+    connect(buttonl,
+            &QPushButton::clicked,
+            this,
+            [=]{
+                QString fd_str=findEdit->text();
+                if(fd_str=="") QMessageBox::warning(NULL,"WARNING","Content can not be empty",QMessageBox::Ok);
+                if(textEdit->find(fd_str,QTextDocument::FindBackward))
+                    highLight();
+                else if(textEdit->find(fd_str))
+                {
+                    textEdit->find(fd_str,QTextDocument::FindBackward);
+                    QMessageBox::warning(NULL,"WARNING","It's the first found word",QMessageBox::Ok);
+                }
+                else
+                    QMessageBox::warning(NULL,"WARNING","Content \""+ fd_str + "\" not found",QMessageBox::Ok);
+                }
+            );
+    connect(buttonn,
+            &QPushButton::clicked,
+            this,
+            [=]{
+                QString fd_str=findEdit->text();
+                if(fd_str=="") QMessageBox::warning(NULL,"WARNING","Content can not be empty",QMessageBox::Ok);
+                if(textEdit->find(fd_str))
+                    highLight();
+                else if(textEdit->find(fd_str,QTextDocument::FindBackward))
+                {
+                    textEdit->find(fd_str);
+                    QMessageBox::warning(NULL,"WARNING","It's the first found word",QMessageBox::Ok);
+                }
+                else
+                    QMessageBox::warning(NULL,"WARNING","Content \""+ fd_str + "\" not found",QMessageBox::Ok);
+                }
+            );
 }
 
 void notebook::Replace(){
-
+    QHBoxLayout *layout = new QHBoxLayout;
+    QDialog *ReplaceDialog = new QDialog(this);
+    QLabel *Rlabel = new QLabel("Replace");
+    QLabel *Wlabel = new QLabel("with");
+    QLineEdit *findEdit = new QLineEdit;
+    QLineEdit *ReplaceEdit = new QLineEdit;
+    QPushButton *button = new QPushButton("Replace");
+    layout->addWidget(Rlabel);
+    layout->addWidget(findEdit);
+    layout->addWidget(Wlabel);
+    layout->addWidget(ReplaceEdit);
+    layout->addWidget(button);
+    ReplaceDialog->setLayout(layout);
+    ReplaceDialog->show();
+    connect(button,
+            &QPushButton::clicked,
+            this,
+            [=]{
+                QString fd_str=findEdit->text();
+                QString rp_str=ReplaceEdit->text();
+                QString doc = textEdit->toPlainText();
+                if(doc.indexOf(fd_str)==-1) QMessageBox::warning(NULL,"WARNING","Content \""+ fd_str + "\" not found",QMessageBox::Ok);
+                else
+                    {
+                        doc = doc.replace(fd_str,rp_str);
+                        textEdit->setPlainText(doc);
+                    }
+                }
+            );
 }
 
 void notebook::Color(){
-
+    QTextCharFormat fmt;
+    QColor clr = QColorDialog::getColor();
+    textEdit->setTextColor(clr);
 }
 
 void notebook::Size(){
-
+    QHBoxLayout *layout = new QHBoxLayout;
+    QDialog *SizeDialog = new QDialog(this);
+    QLabel *Slabel = new QLabel("Size");
+    QLineEdit *sizeEdit = new QLineEdit;
+    QDoubleValidator* val = new QDoubleValidator;
+    val->setRange(0, 1000);//限定范围，且只能输入浮点数
+    sizeEdit->setValidator(val);
+    QPushButton *button = new QPushButton("Set");
+    layout->addWidget(Slabel);
+    layout->addWidget(sizeEdit);
+    layout->addWidget(button);
+    SizeDialog->setLayout(layout);
+    SizeDialog->show();
+    connect(button,
+            &QPushButton::clicked,
+            this,
+            [=]{
+                QTextCharFormat fmt;
+                QString fd_str=sizeEdit->text();
+                fmt.setFontPointSize(fd_str.toDouble());
+                textEdit->mergeCurrentCharFormat(fmt);
+                }
+            );
 }
 
 void notebook::Font(){
+
     bool flag;
+    QTextCharFormat fmt;
     QFont font = QFontDialog::getFont(&flag, this);
     if(flag){
-        textEdit->setFont(font);
+        fmt.setFont(font);
+        textEdit->mergeCurrentCharFormat(fmt);//修改选中字体修改日后输入字体
     }
+
 }
 
 void notebook::AlignRight(){
