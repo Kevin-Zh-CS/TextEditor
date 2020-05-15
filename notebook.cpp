@@ -221,6 +221,7 @@ void notebook::Replace(){
     layout->addWidget(ReplaceEdit);
     layout->addWidget(button);
     ReplaceDialog->setLayout(layout);
+    ReplaceDialog->setWindowTitle("Replace");
     ReplaceDialog->show();
     connect(button,
             &QPushButton::clicked,
@@ -258,6 +259,7 @@ void notebook::Size(){
     layout->addWidget(sizeEdit);
     layout->addWidget(button);
     SizeDialog->setLayout(layout);
+    SizeDialog->setWindowTitle("Size");
     SizeDialog->show();
     connect(button,
             &QPushButton::clicked,
