@@ -42,12 +42,11 @@ private slots:
     void AlignCenter();//居中
     void About();//关于
 
+
 private:
     QMenuBar *menuBar;//菜单栏
 
     QTextEdit *textEdit;//文本框
-    QLineEdit *findEdit;//查找文本框
-
     QMenu *fileMenu;//文件菜单
     QMenu *editMenu;//编辑菜单
     QMenu *formatMenu;//格式菜单
