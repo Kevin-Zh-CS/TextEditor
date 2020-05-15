@@ -24,6 +24,8 @@ void notebook::createUI(){
 
     textEdit = new QTextEdit;
     setCentralWidget(textEdit);//创建文本编辑区
+    QFont f("Microsoft YaHei",12);
+    textEdit->setFont(f);
     QAction* action = nullptr;//初始化动作
     menuBar = new QMenuBar;//创建菜单栏
 
@@ -221,7 +223,6 @@ void notebook::Replace(){
     layout->addWidget(ReplaceEdit);
     layout->addWidget(button);
     ReplaceDialog->setLayout(layout);
-    ReplaceDialog->setWindowTitle("Replace");
     ReplaceDialog->show();
     connect(button,
             &QPushButton::clicked,
@@ -259,7 +260,6 @@ void notebook::Size(){
     layout->addWidget(sizeEdit);
     layout->addWidget(button);
     SizeDialog->setLayout(layout);
-    SizeDialog->setWindowTitle("Size");
     SizeDialog->show();
     connect(button,
             &QPushButton::clicked,
@@ -274,7 +274,6 @@ void notebook::Size(){
 }
 
 void notebook::Font(){
-
     bool flag;
     QTextCharFormat fmt;
     QFont font = QFontDialog::getFont(&flag, this);
@@ -282,21 +281,24 @@ void notebook::Font(){
         fmt.setFont(font);
         textEdit->mergeCurrentCharFormat(fmt);//修改选中字体修改日后输入字体
     }
-
 }
 
 void notebook::AlignRight(){
-
+    textEdit->setAlignment(Qt::AlignRight);
 }
 
 void notebook::AlignLeft(){
-
+    textEdit->setAlignment(Qt::AlignLeft);
 }
 
 void notebook::AlignCenter(){
-
+    textEdit->setAlignment(Qt::AlignCenter);
 }
 
 void notebook::About(){
-
+    QMessageBox::about(this, tr("About Application"), tr("The <b>Notebook</b> is created by <br>"
+                                                         "<br>EleanoreEos"
+                                                         "<br>Kevin-Zh-CS"
+                                                         "<br>SJoJoK"
+                                                         "<br>tjc1411"));
 }
