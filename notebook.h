@@ -2,14 +2,21 @@
 #define NOTEBOOK_H
 
 #include <QMainWindow>
+#include <QFileDialog>
+#include <QTextStream>
 #include <QLabel>
-#include <QMenu>
-#include <QMenuBar>
-#include <QAction>
-#include <QTextEdit>
-#include <QString>
-#include <QDialog>
 #include <QLineEdit>
+#include <QFontDialog>
+#include <QColorDialog>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QMessageBox>
+#include <QToolBar>
+#include <QWaitCondition>
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class notebook; }
+QT_END_NAMESPACE
 
 class notebook : public QMainWindow
 {
@@ -19,9 +26,9 @@ public:
     notebook(QWidget *parent = nullptr);
     ~notebook();
     void createUI();//初始化界面
-    void createAction(QAction*& action, QWidget* parent, QString instance, int shortCut,QString iconPath);
     void highLight();
-
+    QLabel *label = new QLabel();
+    QLabel  *label1 = new QLabel();
 private slots:
     void NewFile();//新建文件
     void OpenFile();//打开文件
@@ -41,16 +48,14 @@ private slots:
     void AlignLeft();//左对齐
     void AlignCenter();//居中
     void About();//关于
-
+    void Bold();//加粗
+    void Italic();//斜体
+    void Underline();//下划线
+    void linenum();//行数统计
+    void timeUpdate();//更新时间
 
 private:
-    QMenuBar *menuBar;//菜单栏
-
-    QTextEdit *textEdit;//文本框
-    QMenu *fileMenu;//文件菜单
-    QMenu *editMenu;//编辑菜单
-    QMenu *formatMenu;//格式菜单
-    QMenu *paragraphMenu;//段落菜单
-    QMenu *helpMenu;//帮助菜单
+    Ui::notebook *ui;
 };
+
 #endif // NOTEBOOK_H
