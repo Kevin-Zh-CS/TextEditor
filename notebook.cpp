@@ -1,165 +1,239 @@
 #include "notebook.h"
-#include <QFontDialog>
-#include <QColorDialog>
-#include <QFont>
-#include <QHBoxLayout>
-#include <QDialog>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QMessageBox>
-#include <QValidator>
+#include "ui_notebook.h"
+#include <QDoubleValidator>
+#include <QTextBlock>
+#include<QLabel>
+#include<QDateTime>
+#include<QTimer>
+#include<QString>
+
+static bool flagI=false;
+static bool flagB=false;
+static bool flagU=false;
 
 notebook::notebook(QWidget *parent)
     : QMainWindow(parent)
+    , ui(new Ui::notebook)
 {
     createUI();//默认创建初始化界面
 }
 
 notebook::~notebook()
 {
+    delete ui;
 }
 
 void notebook::createUI(){
+    ui->setupUi(this);
 
-    textEdit = new QTextEdit;
-    setCentralWidget(textEdit);//创建文本编辑区
     QFont f("Microsoft YaHei",12);
-    textEdit->setFont(f);
-    QAction* action = nullptr;//初始化动作
-    menuBar = new QMenuBar;//创建菜单栏
+    ui->textEdit->setFont(f);
+    setCentralWidget(ui->textEdit);
 
     //文件菜单，后注释不赘述
-    fileMenu = new QMenu("File(&F)", menuBar);//ALT+F 可打开
-    createAction(action, fileMenu, "New", Qt::CTRL + Qt::Key_N, ":imgs/Image/new.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(NewFile()));//创建连接，点击触发事件，调用对应函数
-    fileMenu->addAction(action);
-    createAction(action, fileMenu, "Open", Qt::CTRL + Qt::Key_O, ":imgs/Image/open.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(OpenFile()));
-    fileMenu->addAction(action);
-    createAction(action, fileMenu, "Save", Qt::CTRL + Qt::Key_S, ":imgs/Image/save.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(SaveFile()));
-    fileMenu->addAction(action);
-    createAction(action, fileMenu, "Save As", Qt::CTRL + Qt::SHIFT + Qt::Key_S, ":imgs/Image/save-as.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(SaveAsFile()));
-    fileMenu->addAction(action);
+    ui->actionNew->setShortcut(QKeySequence::New);
+    ui->actionNew->setIcon(QIcon(":imgs/Image/new.png"));
+    ui->actionNew->setStatusTip(tr("New input text."));
+    connect(ui->actionNew, SIGNAL(triggered(bool)), this, SLOT(NewFile()));//创建连接，点击触发事件，调用对应函数
 
+    ui->actionOpen->setShortcut(QKeySequence::Open);
+    ui->actionOpen->setIcon(QIcon(":imgs/Image/open.png"));
+    ui->actionOpen->setStatusTip(tr("Open existed file."));
+    connect(ui->actionOpen, SIGNAL(triggered(bool)), this, SLOT(OpenFile()));
 
-    editMenu = new QMenu("Edit(&E)", menuBar);
-    createAction(action, editMenu, "Cut", Qt::CTRL + Qt::Key_X, ":imgs/Image/cut.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(Cut()));
-    editMenu->addAction(action);
-    createAction(action, editMenu, "Copy", Qt::CTRL + Qt::Key_C, ":imgs/Image/copy.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(Copy()));
-    editMenu->addAction(action);
-    createAction(action, editMenu, "Paste", Qt::CTRL + Qt::Key_V, ":imgs/Image/paste.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(Paste()));
-    editMenu->addAction(action);
-    createAction(action, editMenu, "Find", Qt::CTRL + Qt::Key_F, ":imgs/Image/find.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(Find()));
-    editMenu->addAction(action);
-    createAction(action, editMenu, "Replace", Qt::CTRL + Qt::Key_H, ":imgs/Image/replace.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(Replace()));
-    editMenu->addAction(action);
-    createAction(action, editMenu, "Undo", Qt::CTRL + Qt::Key_Z, ":imgs/Image/undo.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(UnDo()));
-    editMenu->addAction(action);
-    createAction(action, editMenu, "Redo", Qt::CTRL + Qt::Key_Y, ":imgs/Image/redo.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(ReDo()));
-    editMenu->addAction(action);
+    ui->actionSave->setShortcut(QKeySequence::Save);
+    ui->actionSave->setIcon(QIcon(":imgs/Image/save.png"));
+    ui->actionSave->setStatusTip(tr("Save file."));
+    connect(ui->actionSave, SIGNAL(triggered(bool)), this, SLOT(SaveFile()));
 
+    ui->actionSaveAs->setShortcut(QKeySequence::SaveAs);
+    ui->actionSaveAs->setIcon(QIcon(":imgs/Image/save-as.png"));
+    ui->actionSaveAs->setStatusTip(tr("Save file as another."));
+    connect(ui->actionSaveAs, SIGNAL(triggered(bool)), this, SLOT(SaveAsFile()));
 
-    formatMenu = new QMenu("Format(&M)", menuBar);
-    createAction(action, formatMenu, "Color", Qt::CTRL + Qt::ALT + Qt::Key_C, ":imgs/Image/color.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(Color()));
-    formatMenu->addAction(action);
-    createAction(action, formatMenu, "Size", Qt::CTRL + Qt::ALT + Qt::Key_S,":imgs/Image/size.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(Size()));
-    formatMenu->addAction(action);
-    createAction(action, formatMenu, "Font", Qt::CTRL + Qt::ALT + Qt::Key_F, ":imgs/Image/font.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(Font()));
-    formatMenu->addAction(action);
+    ui->actionCut->setShortcut(QKeySequence::Cut);
+    ui->actionCut->setIcon(QIcon(":imgs/Image/cut.png"));
+    ui->actionCut->setStatusTip(tr("Cut text."));
+    connect(ui->actionCut, SIGNAL(triggered(bool)), this, SLOT(Cut()));
 
+    ui->actionCopy->setShortcut(QKeySequence::Copy);
+    ui->actionCopy->setIcon(QIcon(":imgs/Image/copy.png"));
+    ui->actionCopy->setStatusTip(tr("Copy text."));
+    connect(ui->actionCopy, SIGNAL(triggered(bool)), this, SLOT(Copy()));
 
-    paragraphMenu = new QMenu("Paragraph(&P)", menuBar);
-    createAction(action, paragraphMenu, "Align right", Qt::CTRL + Qt::Key_R, ":imgs/Image/right.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(AlignRight()));
-    paragraphMenu->addAction(action);
-    createAction(action, paragraphMenu, "Align left", Qt::CTRL + Qt::Key_L, ":imgs/Image/left.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(AlignLeft()));
-    paragraphMenu->addAction(action);
-    createAction(action, paragraphMenu, "Align center", Qt::CTRL + Qt::Key_E, ":imgs/Image/center.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(AlignCenter()));
-    paragraphMenu->addAction(action);
+    ui->actionPaste->setShortcut(QKeySequence::Paste);
+    ui->actionPaste->setIcon(QIcon(":imgs/Image/paste.png"));
+    ui->actionPaste->setStatusTip(tr("Paste text."));
+    connect(ui->actionPaste, SIGNAL(triggered(bool)), this, SLOT(Paste()));
 
+    ui->actionFind->setShortcut(QKeySequence::Find);
+    ui->actionFind->setIcon(QIcon(":imgs/Image/find.png"));
+    ui->actionFind->setStatusTip(tr("Find text."));
+    connect(ui->actionFind, SIGNAL(triggered(bool)), this, SLOT(Find()));
 
-    helpMenu = new QMenu("Help(&F)", menuBar);
-    createAction(action, helpMenu, "About", Qt::CTRL + Qt::Key_A, ":imgs/Image/about.png");
-    connect(action, SIGNAL(triggered()), this, SLOT(About()));
-    helpMenu->addAction(action);
+    ui->actionReplace->setShortcut(QKeySequence::Replace);
+    ui->actionReplace->setIcon(QIcon(":imgs/Image/replace.png"));
+    ui->actionReplace->setStatusTip(tr("Replace text."));
+    connect(ui->actionReplace, SIGNAL(triggered(bool)), this, SLOT(Replace()));
 
-    //将菜单加入菜单栏
-    menuBar->addMenu(fileMenu);
-    menuBar->addMenu(editMenu);
-    menuBar->addMenu(formatMenu);
-    menuBar->addMenu(paragraphMenu);
-    menuBar->addMenu(helpMenu);
+    ui->actionUndo->setShortcut(QKeySequence::Undo);
+    ui->actionUndo->setIcon(QIcon(":imgs/Image/undo.png"));
+    ui->actionUndo->setStatusTip(tr("Undo operation."));
+    connect(ui->actionUndo, SIGNAL(triggered(bool)), this, SLOT(UnDo()));
 
-    this->setMenuBar(menuBar);
-    resize(1000,800);//初始窗口大小，也可全屏
+    ui->actionRedo->setShortcut(QKeySequence::Redo);
+    ui->actionRedo->setIcon(QIcon(":imgs/Image/redo.png"));
+    ui->actionRedo->setStatusTip(tr("Redo oepration."));
+    connect(ui->actionRedo, SIGNAL(triggered(bool)), this, SLOT(ReDo()));
 
-}
+    ui->actionColor->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_C);
+    ui->actionColor->setIcon(QIcon(":imgs/Image/color.png"));
+    ui->actionColor->setStatusTip(tr("Change color."));
+    connect(ui->actionColor, SIGNAL(triggered(bool)), this, SLOT(Color()));
 
-void notebook::createAction(QAction*& action, QWidget* parent, QString instance, int shortCut, QString iconPath){
-    action = new QAction(instance, parent);//动作
-    action->setShortcut(QKeySequence(shortCut));//快捷键
-    action->setIcon(QIcon(iconPath));//图片路径
+    ui->actionSize->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_S);
+    ui->actionSize->setIcon(QIcon(":imgs/Image/size.png"));
+    ui->actionSize->setStatusTip(tr("Change size."));
+    connect(ui->actionSize, SIGNAL(triggered(bool)), this, SLOT(Size()));
+
+    ui->actionFont->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_F);
+    ui->actionFont->setIcon(QIcon(":imgs/Image/font.png"));
+    ui->actionFont->setStatusTip(tr("Change font."));
+    connect(ui->actionFont, SIGNAL(triggered(bool)), this, SLOT(Font()));
+
+    ui->actionAlignRight->setShortcut(Qt::CTRL + Qt::Key_R);
+    ui->actionAlignRight->setIcon(QIcon(":imgs/Image/right.png"));
+    ui->actionAlignRight->setStatusTip(tr("Align right."));
+    connect(ui->actionAlignRight, SIGNAL(triggered(bool)), this, SLOT(AlignRight()));
+
+    ui->actionAlignLeft->setShortcut(Qt::CTRL + Qt::Key_L);
+    ui->actionAlignLeft->setIcon(QIcon(":imgs/Image/left.png"));
+    ui->actionAlignLeft->setStatusTip(tr("Align left."));
+    connect(ui->actionAlignLeft, SIGNAL(triggered(bool)), this, SLOT(AlignLeft()));
+
+    ui->actionAlignCenter->setShortcut(Qt::CTRL + Qt::Key_E);
+    ui->actionAlignCenter->setIcon(QIcon(":imgs/Image/center.png"));
+    ui->actionAlignCenter->setStatusTip(tr("Align center."));
+    connect(ui->actionAlignCenter, SIGNAL(triggered(bool)), this, SLOT(AlignCenter()));
+
+    ui->actionAbout->setShortcut(Qt::CTRL + Qt::Key_A);
+    ui->actionAbout->setIcon(QIcon(":imgs/Image/about.png"));
+    ui->actionAbout->setStatusTip(tr("About this project."));
+    connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(About()));
+
+    QToolBar *toolBar = addToolBar(tr("toolBar"));
+    toolBar->setStyleSheet("QToolBar{background-color:white}");
+    toolBar->addAction(ui->actionUndo);
+    toolBar->addAction(ui->actionRedo);
+    toolBar->addSeparator();
+
+    QAction *boldAction = new QAction(this);
+    boldAction->setIcon(QIcon(":imgs/Image/bold.png"));
+    boldAction->setShortcuts(QKeySequence::Bold);
+    boldAction->setStatusTip(tr("Bold."));
+    toolBar->addAction(boldAction);
+    connect(boldAction, SIGNAL(triggered(bool)), this, SLOT(Bold()));
+
+    QAction *italicAction = new QAction(this);
+    italicAction->setIcon(QIcon(":imgs/Image/italic.png"));
+    italicAction->setShortcuts(QKeySequence::Italic);
+    italicAction->setStatusTip(tr("Italic."));
+    toolBar->addAction(italicAction);
+    connect(italicAction, SIGNAL(triggered(bool)), this, SLOT(Italic()));
+
+    QAction *underlineAction = new QAction(this);
+    underlineAction->setIcon(QIcon(":imgs/Image/underline.png"));
+    underlineAction->setShortcuts(QKeySequence::Underline);
+    underlineAction->setStatusTip(tr("Underline."));
+    toolBar->addAction(underlineAction);
+    connect(underlineAction, SIGNAL(triggered(bool)), this, SLOT(Underline()));
+
+    QTimer *timer1=new QTimer(this);
+    timer1->start(100); // 每次发射timeout信号时间间隔为100毫秒
+    connect(timer1,SIGNAL(timeout()),this,SLOT(linenum()));
+
+    QTimer *timer = new QTimer(this);
+    timer->start(1000); // 每次发射timeout信号时间间隔为1秒
+    connect(timer,SIGNAL(timeout()),this,SLOT(timeUpdate()));
+
+    toolBar->addSeparator();
+    toolBar->addAction(ui->actionColor);
+    toolBar->addAction(ui->actionSize);
+    toolBar->addAction(ui->actionFont);
+
+    toolBar->addSeparator();
+    toolBar->addAction(ui->actionAlignLeft);
+    toolBar->addAction(ui->actionAlignCenter);
+    toolBar->addAction(ui->actionAlignRight);
+
+    statusBar();
 }
 
 void notebook::highLight(){//查找高亮
-    QPalette palette = textEdit->palette();
+    QPalette palette = ui->textEdit->palette();
     palette.setColor(QPalette::Highlight,palette.color(QPalette::Active,QPalette::Highlight));
-    textEdit->setPalette(palette);
+    ui->textEdit->setPalette(palette);
 }
 
 void notebook::NewFile(){
-
+    ui->textEdit->clear();
 }
 
 void notebook::OpenFile(){
+    QString filename = QFileDialog::getOpenFileName();
 
+    if(filename.length() != 0)
+    {
+        QFile file(filename);
+        if(file.open(QFile::ReadOnly | QFile::Text))
+        {
+            ui->textEdit->setText(QString(file.readAll()));
+        }
+        else
+            throw "could not open file.";
+    }
 }
 
 void notebook::SaveFile(){
+    QString output = ui->textEdit->toPlainText();
+    QString filename = QFileDialog::getSaveFileName();
 
+    if (filename.length() != 0){
+        QFile file(filename);
+        if(file.open(QFile::WriteOnly | QFile::Text)) {
+            QTextStream out(&file);
+            out << output;
+        }
+        else
+            throw "could not write file.";
+    }
 }
 
 void notebook::SaveAsFile(){
-
+    SaveFile();
 }
 
 void notebook::UnDo(){
-
+    ui->textEdit->undo();
 }
 
 void notebook::ReDo(){
-
+    ui->textEdit->redo();
 }
 
 void notebook::Copy(){
-
+    ui->textEdit->copy();
 }
 
 void notebook::Cut(){
-
+    ui->textEdit->cut();
 }
 
 void notebook::Paste(){
-
+    ui->textEdit->paste();
 }
 
 void notebook::Find(){
-
     QHBoxLayout *layout = new QHBoxLayout;
     QDialog *findDialog = new QDialog(this);
     QLabel *label = new QLabel("Content");
@@ -179,11 +253,11 @@ void notebook::Find(){
             [=]{
                 QString fd_str=findEdit->text();
                 if(fd_str=="") QMessageBox::warning(NULL,"WARNING","Content can not be empty",QMessageBox::Ok);
-                if(textEdit->find(fd_str,QTextDocument::FindBackward))
+                if(ui->textEdit->find(fd_str,QTextDocument::FindBackward))
                     highLight();
-                else if(textEdit->find(fd_str))
+                else if(ui->textEdit->find(fd_str))
                 {
-                    textEdit->find(fd_str,QTextDocument::FindBackward);
+                    ui->textEdit->find(fd_str,QTextDocument::FindBackward);
                     QMessageBox::warning(NULL,"WARNING","It's the first found word",QMessageBox::Ok);
                 }
                 else
@@ -196,11 +270,11 @@ void notebook::Find(){
             [=]{
                 QString fd_str=findEdit->text();
                 if(fd_str=="") QMessageBox::warning(NULL,"WARNING","Content can not be empty",QMessageBox::Ok);
-                if(textEdit->find(fd_str))
+                if(ui->textEdit->find(fd_str))
                     highLight();
-                else if(textEdit->find(fd_str,QTextDocument::FindBackward))
+                else if(ui->textEdit->find(fd_str,QTextDocument::FindBackward))
                 {
-                    textEdit->find(fd_str);
+                    ui->textEdit->find(fd_str);
                     QMessageBox::warning(NULL,"WARNING","It's the first found word",QMessageBox::Ok);
                 }
                 else
@@ -230,12 +304,12 @@ void notebook::Replace(){
             [=]{
                 QString fd_str=findEdit->text();
                 QString rp_str=ReplaceEdit->text();
-                QString doc = textEdit->toPlainText();
+                QString doc = ui->textEdit->toPlainText();
                 if(doc.indexOf(fd_str)==-1) QMessageBox::warning(NULL,"WARNING","Content \""+ fd_str + "\" not found",QMessageBox::Ok);
                 else
                     {
                         doc = doc.replace(fd_str,rp_str);
-                        textEdit->setPlainText(doc);
+                        ui->textEdit->setPlainText(doc);
                     }
                 }
             );
@@ -244,7 +318,7 @@ void notebook::Replace(){
 void notebook::Color(){
     QTextCharFormat fmt;
     QColor clr = QColorDialog::getColor();
-    textEdit->setTextColor(clr);
+    ui->textEdit->setTextColor(clr);
 }
 
 void notebook::Size(){
@@ -268,7 +342,7 @@ void notebook::Size(){
                 QTextCharFormat fmt;
                 QString fd_str=sizeEdit->text();
                 fmt.setFontPointSize(fd_str.toDouble());
-                textEdit->mergeCurrentCharFormat(fmt);
+                ui->textEdit->mergeCurrentCharFormat(fmt);
                 }
             );
 }
@@ -279,20 +353,20 @@ void notebook::Font(){
     QFont font = QFontDialog::getFont(&flag, this);
     if(flag){
         fmt.setFont(font);
-        textEdit->mergeCurrentCharFormat(fmt);//修改选中字体修改日后输入字体
+        ui->textEdit->mergeCurrentCharFormat(fmt);//修改选中字体修改日后输入字体
     }
 }
 
 void notebook::AlignRight(){
-    textEdit->setAlignment(Qt::AlignRight);
+    ui->textEdit->setAlignment(Qt::AlignRight);
 }
 
 void notebook::AlignLeft(){
-    textEdit->setAlignment(Qt::AlignLeft);
+    ui->textEdit->setAlignment(Qt::AlignLeft);
 }
 
 void notebook::AlignCenter(){
-    textEdit->setAlignment(Qt::AlignCenter);
+    ui->textEdit->setAlignment(Qt::AlignCenter);
 }
 
 void notebook::About(){
@@ -301,4 +375,57 @@ void notebook::About(){
                                                          "<br>Kevin-Zh-CS"
                                                          "<br>SJoJoK"
                                                          "<br>tjc1411"));
+}
+
+void notebook::Bold(){
+    if(!flagB){
+        ui->textEdit->setFontWeight(75);
+        flagB=true;
+    }
+    else{
+        ui->textEdit->setFontWeight(50);
+        flagB=false;
+    }
+}
+
+void notebook::Italic(){
+    if(flagI==false){
+        ui->textEdit->setFontItalic(true);
+        flagI=true;
+    }
+    else{
+        ui->textEdit->setFontItalic(false);
+        flagI=false;
+    }
+}
+
+void notebook::Underline(){
+    if(!flagU){
+        ui->textEdit->setFontUnderline(true);
+        flagU=true;
+    }
+    else{
+        ui->textEdit->setFontUnderline(false);
+        flagU=false;
+    }
+}
+
+void notebook::linenum(){
+    int blocknumbers = ui->textEdit->document()->blockCount();
+    QString Linenum = QString::number(blocknumbers, 10);
+
+    Linenum="line"+Linenum;
+    label->setText(Linenum);
+    ui->statusbar->addPermanentWidget(label);
+}
+
+
+void notebook::timeUpdate(){
+
+    QDateTime CurrentTime=QDateTime::currentDateTime();
+    QString Timestr=CurrentTime.toString(" yyyy年-MM月-dd日 hh:mm:ss "); //设置显示的格式
+
+
+    label1->setText(Timestr);
+    ui->statusbar->addWidget(label1);
 }
