@@ -1,21 +1,15 @@
 #include "notebook.h"
 #include "ui_notebook.h"
-#include <QDoubleValidator>
-#include <QTextBlock>
-#include<QLabel>
-#include<QDateTime>
-#include<QTimer>
-#include<QString>
 
-static bool flagI=false;
-static bool flagB=false;
-static bool flagU=false;
+static bool flagI = false;
+static bool flagB = false;
+static bool flagU = false;
 
 notebook::notebook(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::notebook)
 {
-    createUI();//默认创建初始化界面
+    createUI();//创建初始化界面
 }
 
 notebook::~notebook()
@@ -26,147 +20,150 @@ notebook::~notebook()
 void notebook::createUI(){
     ui->setupUi(this);
 
-    QFont f("Microsoft YaHei",12);
-    ui->textEdit->setFont(f);
+    QFont defaultFont("Anonymous Pro",12);
+    ui->textEdit->setFont(defaultFont);
     setCentralWidget(ui->textEdit);
 
-    //文件菜单，后注释不赘述
+    ui->textEdit->setStyleSheet("QTextEdit{border:1px groove gray;border-radius:10px;padding:2px 4px}");
+
     ui->actionNew->setShortcut(QKeySequence::New);
     ui->actionNew->setIcon(QIcon(":imgs/Image/new.png"));
-    ui->actionNew->setStatusTip(tr("New input text."));
     connect(ui->actionNew, SIGNAL(triggered(bool)), this, SLOT(NewFile()));//创建连接，点击触发事件，调用对应函数
 
     ui->actionOpen->setShortcut(QKeySequence::Open);
     ui->actionOpen->setIcon(QIcon(":imgs/Image/open.png"));
-    ui->actionOpen->setStatusTip(tr("Open existed file."));
     connect(ui->actionOpen, SIGNAL(triggered(bool)), this, SLOT(OpenFile()));
 
     ui->actionSave->setShortcut(QKeySequence::Save);
     ui->actionSave->setIcon(QIcon(":imgs/Image/save.png"));
-    ui->actionSave->setStatusTip(tr("Save file."));
     connect(ui->actionSave, SIGNAL(triggered(bool)), this, SLOT(SaveFile()));
 
-    ui->actionSaveAs->setShortcut(QKeySequence::SaveAs);
     ui->actionSaveAs->setIcon(QIcon(":imgs/Image/save-as.png"));
-    ui->actionSaveAs->setStatusTip(tr("Save file as another."));
     connect(ui->actionSaveAs, SIGNAL(triggered(bool)), this, SLOT(SaveAsFile()));
 
-    ui->actionCut->setShortcut(QKeySequence::Cut);
-    ui->actionCut->setIcon(QIcon(":imgs/Image/cut.png"));
-    ui->actionCut->setStatusTip(tr("Cut text."));
-    connect(ui->actionCut, SIGNAL(triggered(bool)), this, SLOT(Cut()));
-
-    ui->actionCopy->setShortcut(QKeySequence::Copy);
-    ui->actionCopy->setIcon(QIcon(":imgs/Image/copy.png"));
-    ui->actionCopy->setStatusTip(tr("Copy text."));
-    connect(ui->actionCopy, SIGNAL(triggered(bool)), this, SLOT(Copy()));
-
-    ui->actionPaste->setShortcut(QKeySequence::Paste);
-    ui->actionPaste->setIcon(QIcon(":imgs/Image/paste.png"));
-    ui->actionPaste->setStatusTip(tr("Paste text."));
-    connect(ui->actionPaste, SIGNAL(triggered(bool)), this, SLOT(Paste()));
-
-    ui->actionFind->setShortcut(QKeySequence::Find);
-    ui->actionFind->setIcon(QIcon(":imgs/Image/find.png"));
-    ui->actionFind->setStatusTip(tr("Find text."));
-    connect(ui->actionFind, SIGNAL(triggered(bool)), this, SLOT(Find()));
-
-    ui->actionReplace->setShortcut(QKeySequence::Replace);
-    ui->actionReplace->setIcon(QIcon(":imgs/Image/replace.png"));
-    ui->actionReplace->setStatusTip(tr("Replace text."));
-    connect(ui->actionReplace, SIGNAL(triggered(bool)), this, SLOT(Replace()));
+    ui->actionExit->setShortcut(Qt::Key_Escape);
+    ui->actionExit->setIcon(QIcon(":imgs/Image/exit.png"));
+    connect(ui->actionExit, SIGNAL(triggered(bool)), this, SLOT(Exit()));
 
     ui->actionUndo->setShortcut(QKeySequence::Undo);
     ui->actionUndo->setIcon(QIcon(":imgs/Image/undo.png"));
-    ui->actionUndo->setStatusTip(tr("Undo operation."));
     connect(ui->actionUndo, SIGNAL(triggered(bool)), this, SLOT(UnDo()));
 
     ui->actionRedo->setShortcut(QKeySequence::Redo);
     ui->actionRedo->setIcon(QIcon(":imgs/Image/redo.png"));
-    ui->actionRedo->setStatusTip(tr("Redo oepration."));
     connect(ui->actionRedo, SIGNAL(triggered(bool)), this, SLOT(ReDo()));
 
-    ui->actionColor->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_C);
-    ui->actionColor->setIcon(QIcon(":imgs/Image/color.png"));
-    ui->actionColor->setStatusTip(tr("Change color."));
-    connect(ui->actionColor, SIGNAL(triggered(bool)), this, SLOT(Color()));
+    ui->actionCut->setShortcut(QKeySequence::Cut);
+    ui->actionCut->setIcon(QIcon(":imgs/Image/cut.png"));
+    connect(ui->actionCut, SIGNAL(triggered(bool)), this, SLOT(Cut()));
 
-    ui->actionSize->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_S);
-    ui->actionSize->setIcon(QIcon(":imgs/Image/size.png"));
-    ui->actionSize->setStatusTip(tr("Change size."));
-    connect(ui->actionSize, SIGNAL(triggered(bool)), this, SLOT(Size()));
+    ui->actionCopy->setShortcut(QKeySequence::Copy);
+    ui->actionCopy->setIcon(QIcon(":imgs/Image/copy.png"));
+    connect(ui->actionCopy, SIGNAL(triggered(bool)), this, SLOT(Copy()));
 
-    ui->actionFont->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_F);
+    ui->actionPaste->setShortcut(QKeySequence::Paste);
+    ui->actionPaste->setIcon(QIcon(":imgs/Image/paste.png"));
+    connect(ui->actionPaste, SIGNAL(triggered(bool)), this, SLOT(Paste()));
+
+    ui->actionSelectAll->setShortcut(QKeySequence::SelectAll);
+    ui->actionSelectAll->setIcon(QIcon(":imgs/Image/select-all.png"));
+    connect(ui->actionSelectAll, SIGNAL(triggered(bool)), this, SLOT(SelectAll()));
+
+    ui->actionFind->setShortcut(QKeySequence::Find);
+    ui->actionFind->setIcon(QIcon(":imgs/Image/find.png"));
+    connect(ui->actionFind, SIGNAL(triggered(bool)), this, SLOT(Find()));
+
+    ui->actionReplace->setShortcut(QKeySequence::Replace);
+    ui->actionReplace->setIcon(QIcon(":imgs/Image/replace.png"));
+    connect(ui->actionReplace, SIGNAL(triggered(bool)), this, SLOT(Replace()));
+
+
     ui->actionFont->setIcon(QIcon(":imgs/Image/font.png"));
-    ui->actionFont->setStatusTip(tr("Change font."));
     connect(ui->actionFont, SIGNAL(triggered(bool)), this, SLOT(Font()));
 
-    ui->actionAlignRight->setShortcut(Qt::CTRL + Qt::Key_R);
-    ui->actionAlignRight->setIcon(QIcon(":imgs/Image/right.png"));
-    ui->actionAlignRight->setStatusTip(tr("Align right."));
-    connect(ui->actionAlignRight, SIGNAL(triggered(bool)), this, SLOT(AlignRight()));
+    ui->actionSize->setIcon(QIcon(":imgs/Image/size.png"));
+    connect(ui->actionSize, SIGNAL(triggered(bool)), this, SLOT(Size()));
 
-    ui->actionAlignLeft->setShortcut(Qt::CTRL + Qt::Key_L);
+    ui->actionColor->setIcon(QIcon(":imgs/Image/color.png"));
+    connect(ui->actionColor, SIGNAL(triggered(bool)), this, SLOT(Color()));
+
+    ui->actionBold->setShortcut(QKeySequence::Bold);
+    ui->actionBold->setIcon(QIcon(":imgs/Image/bold.png"));
+    connect(ui->actionBold, SIGNAL(triggered(bool)), this, SLOT(Bold()));
+
+    ui->actionItalic->setShortcut(QKeySequence::Italic);
+    ui->actionItalic->setIcon(QIcon(":imgs/Image/italic.png"));
+    connect(ui->actionItalic, SIGNAL(triggered(bool)), this, SLOT(Italic()));
+
+    ui->actionUnderline->setShortcut(QKeySequence::Underline);
+    ui->actionUnderline->setIcon(QIcon(":imgs/Image/underline.png"));
+    connect(ui->actionUnderline, SIGNAL(triggered(bool)), this, SLOT(Underline()));
+
+    ui->actionClearFormat->setShortcut(Qt::CTRL + Qt::Key_C);
+    ui->actionClearFormat->setIcon(QIcon(":imgs/Image/clear-format.png"));
+    connect(ui->actionClearFormat, SIGNAL(triggered(bool)), this, SLOT(ClearFormat()));
+
     ui->actionAlignLeft->setIcon(QIcon(":imgs/Image/left.png"));
-    ui->actionAlignLeft->setStatusTip(tr("Align left."));
     connect(ui->actionAlignLeft, SIGNAL(triggered(bool)), this, SLOT(AlignLeft()));
 
-    ui->actionAlignCenter->setShortcut(Qt::CTRL + Qt::Key_E);
     ui->actionAlignCenter->setIcon(QIcon(":imgs/Image/center.png"));
-    ui->actionAlignCenter->setStatusTip(tr("Align center."));
     connect(ui->actionAlignCenter, SIGNAL(triggered(bool)), this, SLOT(AlignCenter()));
 
-    ui->actionAbout->setShortcut(Qt::CTRL + Qt::Key_A);
+    ui->actionAlignRight->setIcon(QIcon(":imgs/Image/right.png"));
+    connect(ui->actionAlignRight, SIGNAL(triggered(bool)), this, SLOT(AlignRight()));
+
     ui->actionAbout->setIcon(QIcon(":imgs/Image/about.png"));
-    ui->actionAbout->setStatusTip(tr("About this project."));
     connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(About()));
 
-    QToolBar *toolBar = addToolBar(tr("toolBar"));
+    ui->actionZoomIn->setShortcut(QKeySequence::ZoomIn);
+    ui->actionZoomIn->setIcon(QIcon(":imgs/Image/zoom-in.png"));
+    connect(ui->actionZoomIn, SIGNAL(triggered(bool)), this, SLOT(ZoomIn()));
+
+    ui->actionZoomOut->setShortcut(QKeySequence::ZoomOut);
+    ui->actionZoomOut->setIcon(QIcon(":imgs/Image/zoom-out.png"));
+    connect(ui->actionZoomOut, SIGNAL(triggered(bool)), this, SLOT(ZoomOut()));
+
+    ui->actionFullscreen->setShortcut(QKeySequence::FullScreen);
+    connect(ui->actionFullscreen, SIGNAL(triggered(bool)), this, SLOT(Fullscreen()));
+
+    ui->actionShowTools->setShortcut(Qt::CTRL + Qt::Key_T);
+    connect(ui->actionShowTools, SIGNAL(triggered(bool)), this, SLOT(ShowTools()));
+
+
     toolBar->setStyleSheet("QToolBar{background-color:white}");
+    toolBar->addAction(ui->actionNew);
+    toolBar->addAction(ui->actionOpen);
+    toolBar->addAction(ui->actionSave);
+    toolBar->addSeparator();
     toolBar->addAction(ui->actionUndo);
     toolBar->addAction(ui->actionRedo);
     toolBar->addSeparator();
-
-    QAction *boldAction = new QAction(this);
-    boldAction->setIcon(QIcon(":imgs/Image/bold.png"));
-    boldAction->setShortcuts(QKeySequence::Bold);
-    boldAction->setStatusTip(tr("Bold."));
-    toolBar->addAction(boldAction);
-    connect(boldAction, SIGNAL(triggered(bool)), this, SLOT(Bold()));
-
-    QAction *italicAction = new QAction(this);
-    italicAction->setIcon(QIcon(":imgs/Image/italic.png"));
-    italicAction->setShortcuts(QKeySequence::Italic);
-    italicAction->setStatusTip(tr("Italic."));
-    toolBar->addAction(italicAction);
-    connect(italicAction, SIGNAL(triggered(bool)), this, SLOT(Italic()));
-
-    QAction *underlineAction = new QAction(this);
-    underlineAction->setIcon(QIcon(":imgs/Image/underline.png"));
-    underlineAction->setShortcuts(QKeySequence::Underline);
-    underlineAction->setStatusTip(tr("Underline."));
-    toolBar->addAction(underlineAction);
-    connect(underlineAction, SIGNAL(triggered(bool)), this, SLOT(Underline()));
-
-    QTimer *timer1=new QTimer(this);
-    timer1->start(100); // 每次发射timeout信号时间间隔为100毫秒
-    connect(timer1,SIGNAL(timeout()),this,SLOT(linenum()));
-
-    QTimer *timer = new QTimer(this);
-    timer->start(1000); // 每次发射timeout信号时间间隔为1秒
-    connect(timer,SIGNAL(timeout()),this,SLOT(timeUpdate()));
-
+    toolBar->addAction(ui->actionFind);
+    toolBar->addAction(ui->actionReplace);
     toolBar->addSeparator();
-    toolBar->addAction(ui->actionColor);
-    toolBar->addAction(ui->actionSize);
+    toolBar->addAction(ui->actionBold);
+    toolBar->addAction(ui->actionItalic);
+    toolBar->addAction(ui->actionUnderline);
+    toolBar->addSeparator();
     toolBar->addAction(ui->actionFont);
-
+    toolBar->addAction(ui->actionSize);
+    toolBar->addAction(ui->actionColor);
+    toolBar->addSeparator();
+    toolBar->addAction(ui->actionClearFormat);
     toolBar->addSeparator();
     toolBar->addAction(ui->actionAlignLeft);
     toolBar->addAction(ui->actionAlignCenter);
     toolBar->addAction(ui->actionAlignRight);
-
     statusBar();
+
+
+    QTimer *timer = new QTimer(this);
+    timer->start(100); // 每次发射timeout信号时间间隔为1秒
+    connect(timer,SIGNAL(timeout()),this,SLOT(TimeUpdate()));
+
+    QTimer *LineTimer=new QTimer(this);
+    LineTimer->start(100); // 每次发射timeout信号时间间隔为100毫秒
+    connect(LineTimer,SIGNAL(timeout()),this,SLOT(LineNum()));
 }
 
 void notebook::highLight(){//查找高亮
@@ -213,6 +210,10 @@ void notebook::SaveAsFile(){
     SaveFile();
 }
 
+void notebook::Exit(){
+    close();
+}
+
 void notebook::UnDo(){
     ui->textEdit->undo();
 }
@@ -221,16 +222,20 @@ void notebook::ReDo(){
     ui->textEdit->redo();
 }
 
-void notebook::Copy(){
-    ui->textEdit->copy();
-}
-
 void notebook::Cut(){
     ui->textEdit->cut();
 }
 
+void notebook::Copy(){
+    ui->textEdit->copy();
+}
+
 void notebook::Paste(){
     ui->textEdit->paste();
+}
+
+void notebook::SelectAll(){
+    ui->textEdit->selectAll();
 }
 
 void notebook::Find(){
@@ -315,10 +320,14 @@ void notebook::Replace(){
             );
 }
 
-void notebook::Color(){
+void notebook::Font(){
+    bool flag;
     QTextCharFormat fmt;
-    QColor clr = QColorDialog::getColor();
-    ui->textEdit->setTextColor(clr);
+    QFont font = QFontDialog::getFont(&flag, this);
+    if(flag){
+        fmt.setFont(font);
+        ui->textEdit->mergeCurrentCharFormat(fmt);//修改选中字体修改日后输入字体
+    }
 }
 
 void notebook::Size(){
@@ -347,34 +356,10 @@ void notebook::Size(){
             );
 }
 
-void notebook::Font(){
-    bool flag;
+void notebook::Color(){
     QTextCharFormat fmt;
-    QFont font = QFontDialog::getFont(&flag, this);
-    if(flag){
-        fmt.setFont(font);
-        ui->textEdit->mergeCurrentCharFormat(fmt);//修改选中字体修改日后输入字体
-    }
-}
-
-void notebook::AlignRight(){
-    ui->textEdit->setAlignment(Qt::AlignRight);
-}
-
-void notebook::AlignLeft(){
-    ui->textEdit->setAlignment(Qt::AlignLeft);
-}
-
-void notebook::AlignCenter(){
-    ui->textEdit->setAlignment(Qt::AlignCenter);
-}
-
-void notebook::About(){
-    QMessageBox::about(this, tr("About Application"), tr("The <b>Notebook</b> is created by <br>"
-                                                         "<br>EleanoreEos"
-                                                         "<br>Kevin-Zh-CS"
-                                                         "<br>SJoJoK"
-                                                         "<br>tjc1411"));
+    QColor clr = QColorDialog::getColor();
+    ui->textEdit->setTextColor(clr);
 }
 
 void notebook::Bold(){
@@ -410,22 +395,73 @@ void notebook::Underline(){
     }
 }
 
-void notebook::linenum(){
+void notebook::ClearFormat(){
+    ui->textEdit->setFontFamily("Anonymous Pro");
+    ui->textEdit->setFontPointSize(12);
+    ui->textEdit->setTextColor(Qt::black);
+    ui->textEdit->setFontWeight(50);
+    flagB=false;
+    ui->textEdit->setFontItalic(false);
+    flagI=false;
+    ui->textEdit->setFontUnderline(false);
+    flagU=false;
+}
+
+void notebook::AlignLeft(){
+    ui->textEdit->setAlignment(Qt::AlignLeft);
+}
+
+void notebook::AlignCenter(){
+    ui->textEdit->setAlignment(Qt::AlignCenter);
+}
+
+void notebook::AlignRight(){
+    ui->textEdit->setAlignment(Qt::AlignRight);
+}
+
+void notebook::About(){
+    QMessageBox::about(this, tr("About Application"), tr("The <b>Notebook</b> is created by <br>"
+                                                         "<br>EleanoreEos"
+                                                         "<br>Kevin-Zh-CS"
+                                                         "<br>SJoJoK"
+                                                         "<br>tjc1411"));
+}
+
+void notebook::ZoomIn(){
+    ui->textEdit->zoomIn();
+}
+
+void notebook::ZoomOut(){
+    ui->textEdit->zoomOut();
+}
+
+void notebook::Fullscreen(){
+    if(ui->actionFullscreen->isChecked()==true)
+        showFullScreen();
+    else
+        showNormal();
+}
+
+void notebook::ShowTools(){
+    if(ui->actionShowTools->isChecked()==true)
+        toolBar->setHidden(false);
+    else
+        toolBar->setHidden(true);
+}
+
+void notebook::LineNum(){
     int blocknumbers = ui->textEdit->document()->blockCount();
     QString Linenum = QString::number(blocknumbers, 10);
 
-    Linenum="line"+Linenum;
-    label->setText(Linenum);
-    ui->statusbar->addPermanentWidget(label);
+    Linenum="Line " + Linenum + " ";
+    LineLabel->setText(Linenum);
+    ui->statusbar->addPermanentWidget(LineLabel);
 }
 
-
-void notebook::timeUpdate(){
-
+void notebook::TimeUpdate(){
     QDateTime CurrentTime=QDateTime::currentDateTime();
-    QString Timestr=CurrentTime.toString(" yyyy年-MM月-dd日 hh:mm:ss "); //设置显示的格式
+    QString Timestr=CurrentTime.toString(" yyyy年MM月dd日 hh:mm:ss "); //设置显示的格式
 
-
-    label1->setText(Timestr);
-    ui->statusbar->addWidget(label1);
+    TimeLabel->setText(Timestr);
+    ui->statusbar->addWidget(TimeLabel);
 }

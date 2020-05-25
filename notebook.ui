@@ -28,10 +28,10 @@
    <widget class="QTextEdit" name="textEdit">
     <property name="geometry">
      <rect>
-      <x>51</x>
+      <x>21</x>
       <y>2</y>
-      <width>797</width>
-      <height>463</height>
+      <width>921</width>
+      <height>511</height>
      </rect>
     </property>
     <property name="font">
@@ -62,7 +62,7 @@
      <x>0</x>
      <y>0</y>
      <width>961</width>
-     <height>26</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -70,44 +70,64 @@
      <string>File(&amp;F)</string>
     </property>
     <addaction name="actionNew"/>
+    <addaction name="separator"/>
     <addaction name="actionOpen"/>
+    <addaction name="separator"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuEdit_E">
     <property name="title">
      <string>Edit(&amp;E)</string>
     </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
     <addaction name="actionCut"/>
     <addaction name="actionCopy"/>
     <addaction name="actionPaste"/>
+    <addaction name="separator"/>
+    <addaction name="actionSelectAll"/>
+    <addaction name="separator"/>
     <addaction name="actionFind"/>
     <addaction name="actionReplace"/>
-    <addaction name="actionUndo"/>
-    <addaction name="actionRedo"/>
    </widget>
    <widget class="QMenu" name="menuFormat_M">
     <property name="title">
-     <string>Format(&amp;M)</string>
+     <string>Format(&amp;O)</string>
     </property>
-    <addaction name="actionColor"/>
-    <addaction name="actionSize"/>
+    <addaction name="actionBold"/>
+    <addaction name="actionItalic"/>
+    <addaction name="actionUnderline"/>
+    <addaction name="separator"/>
     <addaction name="actionFont"/>
+    <addaction name="actionSize"/>
+    <addaction name="actionColor"/>
+    <addaction name="separator"/>
+    <addaction name="actionClearFormat"/>
    </widget>
    <widget class="QMenu" name="menuParagraph_P">
     <property name="title">
      <string>Paragraph(&amp;P)</string>
     </property>
-    <addaction name="actionAlignRight"/>
     <addaction name="actionAlignLeft"/>
     <addaction name="actionAlignCenter"/>
-    <addaction name="actionline_num"/>
+    <addaction name="actionAlignRight"/>
    </widget>
    <widget class="QMenu" name="menuHelp_F">
     <property name="title">
-     <string>Help(&amp;F)</string>
+     <string>Help(&amp;H)</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="separator"/>
+    <addaction name="actionZoomIn"/>
+    <addaction name="actionZoomOut"/>
+    <addaction name="separator"/>
+    <addaction name="actionFullscreen"/>
+    <addaction name="separator"/>
+    <addaction name="actionShowTools"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit_E"/>
@@ -120,20 +140,32 @@
    <property name="text">
     <string>About</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionAlignRight">
    <property name="text">
-    <string>Align right</string>
+    <string>Align Right</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionAlignLeft">
    <property name="text">
-    <string>Align left</string>
+    <string>Align Left</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionAlignCenter">
    <property name="text">
-    <string>Align center</string>
+    <string>Align Center</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionColor">
@@ -214,6 +246,68 @@
   <action name="actionline_num">
    <property name="text">
     <string>linenum</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionSelectAll">
+   <property name="text">
+    <string>Select All</string>
+   </property>
+  </action>
+  <action name="actionBold">
+   <property name="text">
+    <string>Bold</string>
+   </property>
+  </action>
+  <action name="actionItalic">
+   <property name="text">
+    <string>Italic</string>
+   </property>
+  </action>
+  <action name="actionUnderline">
+   <property name="text">
+    <string>Underline</string>
+   </property>
+  </action>
+  <action name="actionShowTools">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Tools</string>
+   </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+  </action>
+  <action name="actionFullscreen">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Fullscreen</string>
+   </property>
+  </action>
+  <action name="actionClearFormat">
+   <property name="text">
+    <string>Clear Format</string>
    </property>
   </action>
  </widget>

@@ -15,14 +15,18 @@
         <file>Image/size.png</file>
         <file>Image/undo.png</file>
         <file>Image/redo.png</file>
-        <file>Image/cover.jpg</file>
         <file>Image/right.png</file>
         <file>Image/center.png</file>
         <file>Image/left.png</file>
         <file>Image/bold.png</file>
         <file>Image/italic.png</file>
-        <file>Image/delete.png</file>
         <file>Image/underline.png</file>
+        <file>Image/cover.png</file>
+        <file>Image/clear-format.png</file>
+        <file>Image/exit.png</file>
+        <file>Image/select-all.png</file>
+        <file>Image/zoom-in.png</file>
+        <file>Image/zoom-out.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
