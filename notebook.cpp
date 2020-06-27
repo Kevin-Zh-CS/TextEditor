@@ -22,6 +22,7 @@ void notebook::createUI(){
 
     QFont defaultFont("Anonymous Pro",12);
     ui->textEdit->setFont(defaultFont);
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(isChanged()));
     setCentralWidget(ui->textEdit);
 
     ui->textEdit->setStyleSheet("QTextEdit{border:1px groove gray;border-radius:10px;padding:2px 4px}");
@@ -99,7 +100,7 @@ void notebook::createUI(){
     ui->actionUnderline->setIcon(QIcon(":imgs/Image/underline.png"));
     connect(ui->actionUnderline, SIGNAL(triggered(bool)), this, SLOT(Underline()));
 
-    ui->actionClearFormat->setShortcut(Qt::CTRL + Qt::Key_C);
+    ui->actionClearFormat->setShortcut(Qt::CTRL + Qt::Key_Q);
     ui->actionClearFormat->setIcon(QIcon(":imgs/Image/clear-format.png"));
     connect(ui->actionClearFormat, SIGNAL(triggered(bool)), this, SLOT(ClearFormat()));
 
@@ -172,19 +173,49 @@ void notebook::highLight(){//查找高亮
     ui->textEdit->setPalette(palette);
 }
 
+void notebook::isChanged()
+{
+    if(!isTextChanged)
+    {
+        setWindowTitle("*" + windowTitle());
+    }
+
+    isTextChanged = true;
+}
+
 void notebook::NewFile(){
+    if(isTextChanged)
+    {
+        int result = QMessageBox::question(this,tr("tips"),tr("Save or not?"),QMessageBox::Yes|QMessageBox::Default,QMessageBox::No|QMessageBox::Escape);
+        if (result == QMessageBox::Yes)
+            SaveFile();
+    }
+
     ui->textEdit->clear();
+    filename = "";
+    isTextChanged = false;
+    setWindowTitle("Untitled - Notebook");
 }
 
 void notebook::OpenFile(){
-    QString filename = QFileDialog::getOpenFileName();
-
-    if(filename.length() != 0)
+    if(isTextChanged)
     {
-        QFile file(filename);
+        int result = QMessageBox::question(this,tr("tips"),tr("Save or not?"),QMessageBox::Yes|QMessageBox::Default,QMessageBox::No|QMessageBox::Escape);
+        if (result == QMessageBox::Yes)
+            SaveFile();
+    }
+
+    QString filepath = QFileDialog::getOpenFileName(this,"Open","../","text(*.*)");
+    if(filepath.length() != 0)
+    {
+        QFile file(filepath);
         if(file.open(QFile::ReadOnly | QFile::Text))
         {
             ui->textEdit->setText(QString(file.readAll()));
+            file.close();
+            filename = filepath;
+            isTextChanged = false;
+            setWindowTitle(filename + " - Notebook");
         }
         else
             throw "could not open file.";
@@ -193,13 +224,22 @@ void notebook::OpenFile(){
 
 void notebook::SaveFile(){
     QString output = ui->textEdit->toPlainText();
-    QString filename = QFileDialog::getSaveFileName();
+    QString filepath;
 
-    if (filename.length() != 0){
-        QFile file(filename);
+    if(filename == "")
+        filepath = QFileDialog::getSaveFileName(this,"Save","../","text(*.txt)");
+    else
+        filepath = filename;
+
+    if (filepath.length() != 0){
+        QFile file(filepath);
         if(file.open(QFile::WriteOnly | QFile::Text)) {
             QTextStream out(&file);
             out << output;
+            file.close();
+            filename = filepath;
+            isTextChanged = false;
+            setWindowTitle(filepath + " - Notebook");
         }
         else
             throw "could not write file.";
@@ -207,11 +247,37 @@ void notebook::SaveFile(){
 }
 
 void notebook::SaveAsFile(){
-    SaveFile();
+    QString output = ui->textEdit->toPlainText();
+    QString filepath = QFileDialog::getSaveFileName(this,"Save","../","text(*.txt)");
+    if (filepath.length() != 0){
+        QFile file(filepath);
+        if(file.open(QFile::WriteOnly | QFile::Text)) {
+            QTextStream out(&file);
+            out << output;
+            file.close();
+            filename = filepath;
+            isTextChanged = false;
+            setWindowTitle(filepath + " - Notebook");
+        }
+        else
+            throw "could not write file.";
+    }
 }
 
 void notebook::Exit(){
     close();
+}
+
+void notebook::closeEvent(QCloseEvent *event)
+{
+    if(isTextChanged)
+    {
+        int result = QMessageBox::question(this,tr("tips"),tr("Save or not?"),QMessageBox::Yes|QMessageBox::Default,QMessageBox::No|QMessageBox::Escape);
+        if (result == QMessageBox::Yes)
+            SaveFile();
+    }
+
+    event->accept();
 }
 
 void notebook::UnDo(){
@@ -460,7 +526,7 @@ void notebook::LineNum(){
 
 void notebook::TimeUpdate(){
     QDateTime CurrentTime=QDateTime::currentDateTime();
-    QString Timestr=CurrentTime.toString(" yyyy年MM月dd日 hh:mm:ss "); //设置显示的格式
+    QString Timestr=CurrentTime.toString(" yyyy-MM-dd hh:mm:ss "); //设置显示的格式
 
     TimeLabel->setText(Timestr);
     ui->statusbar->addWidget(TimeLabel);

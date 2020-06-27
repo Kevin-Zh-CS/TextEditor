@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     splash.show();
 
     notebook w;
-    w.setWindowTitle("Notebook");
+    w.setWindowTitle("Untitled - Notebook");
     w.setWindowIcon(QIcon(":imgs/Image/cover.png"));
     w.show();
     splash.finish(&w);
