@@ -69,7 +69,14 @@
     <property name="title">
      <string>File(&amp;F)</string>
     </property>
-    <addaction name="actionNew"/>
+    <widget class="QMenu" name="menuNew">
+     <property name="title">
+      <string>New</string>
+     </property>
+     <addaction name="actionTextFile"/>
+     <addaction name="actionCppFile"/>
+    </widget>
+    <addaction name="menuNew"/>
     <addaction name="separator"/>
     <addaction name="actionOpen"/>
     <addaction name="separator"/>
@@ -126,6 +133,8 @@
     <addaction name="actionZoomOut"/>
     <addaction name="separator"/>
     <addaction name="actionFullscreen"/>
+    <addaction name="separator"/>
+    <addaction name="actionReadOnly"/>
     <addaction name="separator"/>
     <addaction name="actionShowTools"/>
    </widget>
@@ -218,11 +227,6 @@
     <string>Redo</string>
    </property>
   </action>
-  <action name="actionNew">
-   <property name="text">
-    <string>New</string>
-   </property>
-  </action>
   <action name="actionOpen">
    <property name="text">
     <string>Open</string>
@@ -308,6 +312,30 @@
   <action name="actionClearFormat">
    <property name="text">
     <string>Clear Format</string>
+   </property>
+  </action>
+  <action name="actionReadOnly">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Read Only</string>
+   </property>
+  </action>
+  <action name="actionTextFile">
+   <property name="text">
+    <string>Text File</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionCppFile">
+   <property name="text">
+    <string>C++ File</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
    </property>
   </action>
  </widget>
