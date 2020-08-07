@@ -2,5 +2,5 @@
 
 Our project for object oriented programming.<br>
 
-<img src="img-show" style="zoom:90%;" />
+<img src="img-show.png" style="zoom:90%;" />
 
