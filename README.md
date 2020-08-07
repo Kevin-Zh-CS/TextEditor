@@ -1,4 +1,6 @@
 ## TextEditor
 
 Our project for object oriented programming.<br>
-Cheers for our contribution.
+
+<img src="img-show" style="zoom:90%;" />
+
